@@ -3,5 +3,10 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/404": "pages/404.js"
+  "/cases": "pages/cases.js",
+  "/auth/login": "pages/auth/login.js",
+  "/404": "pages/404.js",
+  "/dashboard": "pages/dashboard.js",
+  "/cases/[id]": "pages/cases/[id].js",
+  "/profile/me": "pages/profile/me.js"
 }

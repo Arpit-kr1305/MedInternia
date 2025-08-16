@@ -10,7 +10,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <CssBaseline />
       <Navbar route={router.pathname} />
-      <Component {...pageProps} />
+      {/* Add top margin to main content to avoid hiding under navbar */}
+      <div style={{ marginTop: 64 }}>
+        <Component {...pageProps} />
+      </div>
     </>
   );
 }

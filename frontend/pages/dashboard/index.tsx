@@ -12,13 +12,10 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('No token found. Redirecting to login.');
       router.push('/auth/login');
       return;
     }
-    alert('Using token: ' + token);
     if (!token || token === 'undefined') {
-      alert('Token is missing or invalid. Redirecting to login.');
       router.push('/auth/login');
       return;
     }

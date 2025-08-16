@@ -30,6 +30,30 @@ import SearchIcon from "@mui/icons-material/Search";
 
 export default function Navbar({ route }: { route?: string }) {
   const router = useRouter();
+  // Role-based dashboard navigation
+  const handleHomeNav = () => {
+    // Try to get role from localStorage (adjust if you use context/auth)
+    let role = '';
+    if (typeof window !== 'undefined') {
+      role = localStorage.getItem('role') || '';
+    }
+    switch (role) {
+      case 'doctor':
+        router.push('/dashboard/doctor');
+        break;
+      case 'patient':
+        router.push('/dashboard/patient');
+        break;
+      case 'intern':
+        router.push('/dashboard/intern');
+        break;
+      case 'admin':
+        router.push('/dashboard/admin');
+        break;
+      default:
+        router.push('/');
+    }
+  };
   // More dropdown state
   const [moreAnchorEl, setMoreAnchorEl] = React.useState<null | HTMLElement>(
     null
@@ -79,12 +103,13 @@ export default function Navbar({ route }: { route?: string }) {
         }}
       >
         <Toolbar sx={{ flexWrap: "wrap", minHeight: 64, px: { xs: 1, md: 3 } }}>
-          <IconButton color="inherit" component={Link} href="/" sx={{ mr: 2 }}>
+          <IconButton color="inherit" sx={{ mr: 2 }} onClick={handleHomeNav}>
             <HomeIcon />
           </IconButton>
           <Typography
             variant="h6"
-            sx={{ fontWeight: 700, letterSpacing: 1, mr: 2 }}
+            sx={{ fontWeight: 700, letterSpacing: 1, mr: 2, cursor: 'pointer' }}
+            onClick={handleHomeNav}
           >
             Med-Internia
           </Typography>

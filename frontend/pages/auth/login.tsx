@@ -16,8 +16,10 @@ export default function Login() {
     try {
   const res = await api.post('/auth/login', { email, password });
   const token = res.data?.data?.token;
+  const role = res.data?.data?.user?.role || '';
   localStorage.setItem('token', token);
-  alert('Login successful! Token: ' + token);
+  localStorage.setItem('role', role);
+  // Optionally show a toast/snackbar for success, but do not show token
   router.push('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
