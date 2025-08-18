@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { authenticate, authorize } from '../middleware/auth';
 import {
   getUserProfile,
@@ -13,7 +13,7 @@ import {
 
 const router = Router();
 
-// Get user profile
+// Get user profile by ID
 router.get('/:userId/profile', getUserProfile);
 
 // Update user profile

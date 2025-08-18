@@ -2,7 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/badges": "pages/badges.js",
-  "/cases/[id]": "pages/cases/[id].js",
-  "/cases": "pages/cases.js"
+  "/webinars": "pages/webinars.js",
+  "/webinars/create": "pages/webinars/create.js",
+  "/dashboard": "pages/dashboard.js"
 }

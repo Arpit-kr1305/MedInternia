@@ -38,7 +38,8 @@ export const createWebinar = async (req: AuthRequest, res: Response) => {
       maxParticipants,
       registrationDeadline,
       materials,
-      tags
+      tags,
+      meetingLink: `https://meet.jit.si/webinar-${new Date().getTime()}-${Math.floor(Math.random()*10000)}`
     });
 
     await webinar.save();
@@ -47,7 +48,7 @@ export const createWebinar = async (req: AuthRequest, res: Response) => {
     res.status(201).json({
       success: true,
       message: 'Webinar created successfully',
-      data: { webinar }
+      data: { webinar, meetingLink: webinar.meetingLink }
     });
   } catch (error) {
     console.error('Create webinar error:', error);

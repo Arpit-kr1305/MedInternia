@@ -20,20 +20,15 @@ globalThis.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/badges": [
+    "/webinars": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/badges.js"
+      "static/chunks/pages/webinars.js"
     ],
-    "/cases": [
+    "/webinars/create": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/cases.js"
-    ],
-    "/cases/[id]": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/cases/[id].js"
+      "static/chunks/pages/webinars/create.js"
     ]
   },
   "ampFirstPages": []
