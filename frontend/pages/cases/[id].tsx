@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Container, Typography, Box, CircularProgress, Alert, Button, TextField, Menu, MenuItem, IconButton, Stack } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Alert, Button, TextField, Menu, MenuItem, IconButton, Stack, Collapse } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PushPinIcon from '@mui/icons-material/PushPin';
+import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { motion } from 'framer-motion';
 import api from '../../utils/api';
 
@@ -14,6 +16,43 @@ export default function CaseDetail() {
   const [pinned, setPinned] = useState<any[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedComment, setSelectedComment] = useState<any>(null);
+  const [openReplies, setOpenReplies] = useState<{[key: string]: boolean}>({});
+  // Like and rate logic
+  const handleLike = async (commentId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.post(`/cases/${id}/comments/${commentId}/like`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Refresh discussions
+      const res = await api.get(`/cases/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const all = res.data.data.case.comments || [];
+      setPinned(all.filter((c: any) => c.pinned));
+      setDiscussions(all.filter((c: any) => !c.pinned));
+    } catch {
+      setError('Failed to like discussion');
+    }
+  };
+
+  const handleRate = async (commentId: string, rating: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.post(`/cases/${id}/comments/${commentId}/rate`, { rating }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Refresh discussions
+      const res = await api.get(`/cases/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const all = res.data.data.case.comments || [];
+      setPinned(all.filter((c: any) => c.pinned));
+      setDiscussions(all.filter((c: any) => !c.pinned));
+    } catch {
+      setError('Failed to rate discussion');
+    }
+  };
   const [replyTo, setReplyTo] = useState<any>(null);
   const [replyContent, setReplyContent] = useState('');
   const [comment, setComment] = useState('');
@@ -230,37 +269,58 @@ export default function CaseDetail() {
                         <Typography variant="caption" sx={{ ml: 1, color: '#90caf9' }}>
                           {c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                         </Typography>
+                        {/* Pin icon for owner, visible */}
+                        {isAuthor && !c.pinned && (
+                          <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handlePin(c._id)}>
+                            <PushPinIcon sx={{ fontSize: 18, color: '#1976d2' }} />
+                          </IconButton>
+                        )}
                         <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={e => { setAnchorEl(e.currentTarget); setSelectedComment({ comment: c, idx, pinned: false }); }}>
                           <MoreVertIcon sx={{ fontSize: 18, color: isMe ? '#fff' : '#1976d2' }} />
                         </IconButton>
+                        {/* Like and rate buttons */}
+                        <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleLike(c._id)}>
+                          <ThumbUpAltOutlinedIcon sx={{ fontSize: 18, color: '#2193b0' }} />
+                        </IconButton>
+                        <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleRate(c._id, 5)}>
+                          <StarBorderIcon sx={{ fontSize: 18, color: '#ffd700' }} />
+                        </IconButton>
+                        {/* Dropdown for replies */}
+                        {c.replies && c.replies.length > 0 && (
+                          <Button size="small" sx={{ ml: 1, fontSize: 12, color: '#1976d2', textTransform: 'none' }} onClick={() => setOpenReplies(prev => ({ ...prev, [c._id]: !prev[c._id] }))}>
+                            {openReplies[c._id] ? 'Hide Replies' : `Show Replies (${c.replies.length})`}
+                          </Button>
+                        )}
                       </Box>
-                      {/* Show replies if any */}
+                      {/* Collapsible replies */}
                       {c.replies && c.replies.length > 0 && (
-                        <Box sx={{ mt: 1, ml: 4, pl: 2, borderLeft: '2px solid #90caf9', bgcolor: '#f5fafd', borderRadius: 2 }}>
-                          {c.replies.map((r: any, ridx: number) => (
-                            <Box key={r._id || ridx} sx={{ mb: 1, display: 'flex', alignItems: 'flex-end' }}>
-                              <Box sx={{
-                                background: 'linear-gradient(135deg, #90caf9 60%, #e3f2fd 100%)',
-                                color: '#1976d2',
-                                width: 32,
-                                height: 32,
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 700,
-                                fontSize: 16,
-                                mr: 1.5,
-                              }}>{r.author?.firstName?.[0]?.toUpperCase() || 'U'}</Box>
-                              <Box sx={{ bgcolor: '#fff', color: '#222', borderRadius: 2, px: 2, py: 1, boxShadow: 1 }}>
-                                <Typography sx={{ fontSize: '1rem', fontWeight: 500 }}>{r.content}</Typography>
-                                <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.8rem', color: '#90caf9' }}>
-                                  {r.createdAt ? new Date(r.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                                </Typography>
+                        <Collapse in={!!openReplies[c._id]}>
+                          <Box sx={{ mt: 1, ml: 4, pl: 2, borderLeft: '2px solid #90caf9', bgcolor: '#f5fafd', borderRadius: 2 }}>
+                            {c.replies.map((r: any, ridx: number) => (
+                              <Box key={r._id || ridx} sx={{ mb: 1, display: 'flex', alignItems: 'flex-end' }}>
+                                <Box sx={{
+                                  background: 'linear-gradient(135deg, #90caf9 60%, #e3f2fd 100%)',
+                                  color: '#1976d2',
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 700,
+                                  fontSize: 16,
+                                  mr: 1.5,
+                                }}>{r.author?.firstName?.[0]?.toUpperCase() || 'U'}</Box>
+                                <Box sx={{ bgcolor: '#fff', color: '#222', borderRadius: 2, px: 2, py: 1, boxShadow: 1 }}>
+                                  <Typography sx={{ fontSize: '1rem', fontWeight: 500 }}>{r.content}</Typography>
+                                  <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.8rem', color: '#90caf9' }}>
+                                    {r.createdAt ? new Date(r.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                  </Typography>
+                                </Box>
                               </Box>
-                            </Box>
-                          ))}
-                        </Box>
+                            ))}
+                          </Box>
+                        </Collapse>
                       )}
                     </Box>
                   </Box>
