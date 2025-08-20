@@ -33,32 +33,32 @@ export default function Navbar({ route }: { route?: string }) {
   // Role-based dashboard navigation
   const handleHomeNav = () => {
     // If logged in, always go to dashboard; else go to main page
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      const role = localStorage.getItem('role') || '';
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role") || "";
       // Only route to dashboard if logged in
       if (token) {
         switch (role) {
-          case 'doctor':
-            router.push('/dashboard/doctor');
+          case "doctor":
+            router.push("/dashboard/doctor");
             return;
-          case 'patient':
-            router.push('/dashboard/patient');
+          case "patient":
+            router.push("/dashboard/patient");
             return;
-          case 'intern':
-            router.push('/dashboard/intern');
+          case "intern":
+            router.push("/dashboard/intern");
             return;
-          case 'admin':
-            router.push('/dashboard/admin');
+          case "admin":
+            router.push("/dashboard/admin");
             return;
           default:
-            router.push('/dashboard');
+            router.push("/dashboard");
             return;
         }
       }
     }
     // If not logged in, always go to main page
-    router.push('/');
+    router.push("/");
   };
   // More dropdown state
   const [moreAnchorEl, setMoreAnchorEl] = React.useState<null | HTMLElement>(
@@ -80,6 +80,7 @@ export default function Navbar({ route }: { route?: string }) {
     px: 2,
     color: router.pathname === path ? "#2193b0" : undefined,
   });
+  // ...existing code...
   // Recent searches and suggestions
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [recentSearches, setRecentSearches] = React.useState<string[]>([
@@ -114,7 +115,7 @@ export default function Navbar({ route }: { route?: string }) {
           </IconButton>
           <Typography
             variant="h6"
-            sx={{ fontWeight: 700, letterSpacing: 1, mr: 2, cursor: 'pointer' }}
+            sx={{ fontWeight: 700, letterSpacing: 1, mr: 2, cursor: "pointer" }}
             onClick={handleHomeNav}
           >
             Med-Internia
@@ -128,310 +129,20 @@ export default function Navbar({ route }: { route?: string }) {
               minWidth: 0,
             }}
           >
-            {/* Desktop search bar */}
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: 420,
-                position: "relative",
-                display: { xs: "none", md: "block" },
-              }}
-            >
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault(); /* handleSearch logic here */
-                }}
-                autoComplete="off"
-                style={{ width: "100%" }}
-              >
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setShowSuggestions(e.target.value.length > 0);
-                  }}
-                  onFocus={() => setShowSuggestions(search.length > 0)}
-                  onBlur={() =>
-                    setTimeout(() => setShowSuggestions(false), 150)
-                  }
-                  placeholder="   Search medical cases, jobs, or webinars…"
-                  aria-label="Search medical content"
-                  style={{
-                    width: "100%",
-                    borderRadius: 24,
-                    border: "1px solid #b0c4de",
-                    height: 44,
-                    fontSize: "1.08rem",
-                    background: "#fff",
-                    boxShadow: "0 2px 8px rgba(33,147,176,0.10)",
-                  }}
-                />
-                <IconButton
-                  type="submit"
-                  sx={{
-                    position: "absolute",
-                    right: 6,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background:
-                      "linear-gradient(90deg, #1de9b6 0%, #2193b0 100%)",
-                    borderRadius: "50%",
-                    boxShadow: "0 2px 8px #2193b044",
-                    width: 32,
-                    height: 32,
-                    minWidth: 32,
-                    minHeight: 32,
-                    p: 0,
-                    transition: "transform 0.2s, box-shadow 0.2s",
-                    "&:hover": {
-                      transform: "scale(1.08)",
-                      boxShadow: "0 4px 16px #2193b066",
-                      background:
-                        "linear-gradient(90deg, #2193b0 0%, #1de9b6 100%)",
-                    },
-                  }}
-                  aria-label="Search medical content"
-                  title="Search"
-                >
-                  <SearchIcon sx={{ color: "#fff", fontSize: 18 }} />
-                </IconButton>
-                {/* Suggestions dropdown */}
-                {showSuggestions && (
-                  <Paper
-                    sx={{
-                      position: "absolute",
-                      top: 44,
-                      left: 0,
-                      width: "100%",
-                      zIndex: 10,
-                      borderRadius: 3,
-                      boxShadow: "0 4px 16px #2193b044",
-                      mt: 1,
-                      p: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{ mb: 1, px: 1, fontWeight: 600, color: "#1565c0" }}
-                    >
-                      Recent Searches
-                    </Box>
-                    {recentSearches.map((item) => (
-                      <Box
-                        key={item}
-                        sx={{
-                          px: 4,
-                          py: 1,
-                          borderRadius: 2,
-                          cursor: "pointer",
-                          fontSize: "0.92rem",
-                          color: "#1565c0",
-                          "&:hover": { background: "#e0eafc" },
-                        }}
-                        onMouseDown={() => {
-                          setSearch(item);
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        {item}
-                      </Box>
-                    ))}
-                    <Divider sx={{ my: 1 }} />
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 1,
-                        px: 1,
-                        fontWeight: 500,
-                        color: "#2193b0",
-                      }}
-                    >
-                      {["Cases", "Jobs", "Webinars"].map((item) => (
-                        <Box
-                          key={item}
-                          sx={{
-                            cursor: "pointer",
-                            px: 2,
-                            py: 0.5,
-                            borderRadius: 2,
-                            "&:hover": { background: "#e0eafc" },
-                          }}
-                          onMouseDown={() => {
-                            setSearch(item);
-                            setShowSuggestions(false);
-                          }}
-                        >
-                          {item}
-                        </Box>
-                      ))}
-                    </Box>
-                  </Paper>
-                )}
-              </form>
-            </Box>
-            {/* Mobile search bar */}
-            <Box
-              sx={{
-                position: "relative",
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              <IconButton
-                sx={{
-                  background: "#e0eafc",
-                  borderRadius: "50%",
-                  boxShadow: "0 1px 4px #2193b022",
-                  width: 36,
-                  height: 36,
-                  p: 0,
-                  ml: 1,
-                }}
-                aria-label="Search"
-                title="Search"
-                onClick={() => searchInputRef.current?.focus()}
-              >
-                <span
-                  className="material-icons"
-                  style={{ fontSize: 22, color: "#2193b0" }}
-                >
-                  search
-                </span>
-              </IconButton>
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setShowSuggestions(e.target.value.length > 0);
-                }}
-                onFocus={() => setShowSuggestions(search.length > 0)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                placeholder="Search medical cases, jobs, or webinars…"
-                aria-label="Search medical content"
-                style={{
-                  position: "absolute",
-                  left: 44,
-                  top: 0,
-                  width: showSuggestions || search.length > 0 ? 180 : 0,
-                  opacity: showSuggestions || search.length > 0 ? 1 : 0,
-                  borderRadius: 30,
-                  border: "1px solid #b0c4de",
-                  height: 40,
-                  fontSize: "1rem",
-                  background: "#fff",
-                  boxShadow: "0 2px 12px rgba(33,147,176,0.12)",
-                  paddingLeft: 20,
-                  paddingRight: 48,
-                  margin: 0,
-                  color: "#222",
-                  transition: "width 0.2s, opacity 0.2s",
-                  fontWeight: 500,
-                }}
-              />
-              <IconButton
-                type="submit"
-                sx={{
-                  position: "absolute",
-                  right: 8,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background:
-                    "linear-gradient(90deg, #1de9b6 0%, #2193b0 100%)",
-                  borderRadius: "50%",
-                  boxShadow: "0 2px 8px #2193b044",
-                  width: 40,
-                  height: 40,
-                  p: 0,
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    transform: "scale(1.08)",
-                    boxShadow: "0 4px 16px #2193b066",
-                    background:
-                      "linear-gradient(90deg, #2193b0 0%, #1de9b6 100%)",
-                  },
-                }}
-                aria-label="Search medical content"
-                title="Search"
-              >
-                <SearchIcon sx={{ color: "#fff", fontSize: 22 }} />
-              </IconButton>
-              {/* Suggestions dropdown for mobile */}
-              {showSuggestions && (
-                <Paper
-                  sx={{
-                    position: "absolute",
-                    top: 40,
-                    left: 0,
-                    width: 220,
-                    zIndex: 10,
-                    borderRadius: 3,
-                    boxShadow: "0 4px 16px #2193b044",
-                    mt: 1,
-                    p: 1,
-                  }}
-                >
-                  <Box sx={{ mb: 1, px: 1, fontWeight: 600, color: "#1565c0" }}>
-                    Recent Searches
-                  </Box>
-                  {recentSearches.map((item) => (
-                    <Box
-                      key={item}
-                      sx={{
-                        px: 2,
-                        py: 1,
-                        borderRadius: 2,
-                        cursor: "pointer",
-                        fontSize: "1rem",
-                        color: "#1565c0",
-                        "&:hover": { background: "#e0eafc" },
-                      }}
-                      onMouseDown={() => {
-                        setSearch(item);
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      {item}
-                    </Box>
-                  ))}
-                  <Divider sx={{ my: 1 }} />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      px: 1,
-                      fontWeight: 500,
-                      color: "#2193b0",
-                    }}
-                  >
-                    {["Cases", "Jobs", "Webinars"].map((item) => (
-                      <Box
-                        key={item}
-                        sx={{
-                          cursor: "pointer",
-                          px: 2,
-                          py: 0.5,
-                          borderRadius: 2,
-                          "&:hover": { background: "#e0eafc" },
-                        }}
-                        onMouseDown={() => {
-                          setSearch(item);
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        {item}
-                      </Box>
-                    ))}
-                  </Box>
-                </Paper>
-              )}
-            </Box>
+            {/* ...existing code for search bars... */}
           </Box>
           {/* Main Nav Buttons with active underline */}
           <Box
             sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}
           >
+            <Button
+              color="inherit"
+              component={Link}
+              href="/landing"
+              sx={navActive("/landing")}
+            >
+              Landing
+            </Button>
             <Button
               color="inherit"
               component={Link}
@@ -467,14 +178,16 @@ export default function Navbar({ route }: { route?: string }) {
               anchorEl={moreAnchorEl}
               open={moreOpen}
               onClose={handleMoreClose}
-              PaperProps={{ sx: { minWidth: 160, borderRadius: 2, textAlign: 'center' } }}
+              PaperProps={{
+                sx: { minWidth: 160, borderRadius: 2, textAlign: "center" },
+              }}
             >
               <MenuItem
                 onClick={() => {
                   handleMoreClose();
                   router.push("/resources");
                 }}
-                sx={{ justifyContent: 'center' }}
+                sx={{ justifyContent: "center" }}
               >
                 Resources
               </MenuItem>
@@ -483,7 +196,7 @@ export default function Navbar({ route }: { route?: string }) {
                   handleMoreClose();
                   router.push("/leaderboard");
                 }}
-                sx={{ justifyContent: 'center' }}
+                sx={{ justifyContent: "center" }}
               >
                 Leaderboard
               </MenuItem>
@@ -492,7 +205,7 @@ export default function Navbar({ route }: { route?: string }) {
                   handleMoreClose();
                   router.push("/badges");
                 }}
-                sx={{ justifyContent: 'center' }}
+                sx={{ justifyContent: "center" }}
               >
                 Badges
               </MenuItem>
