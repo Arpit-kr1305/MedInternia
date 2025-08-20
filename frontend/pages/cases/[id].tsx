@@ -13,7 +13,9 @@ export default function CaseDetail() {
   const [discussions, setDiscussions] = useState<any[]>([]);
   const [pinned, setPinned] = useState<any[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedComment, setSelectedComment] = useState<number | null>(null);
+  const [selectedComment, setSelectedComment] = useState<any>(null);
+  const [replyTo, setReplyTo] = useState<any>(null);
+  const [replyContent, setReplyContent] = useState('');
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -40,10 +42,12 @@ export default function CaseDetail() {
   const handleDiscussion = async () => {
     try {
       const token = localStorage.getItem('token');
-      await api.post(`/cases/${id}/comments`, { content: comment }, {
+      await api.post(`/cases/${id}/comments`, { content: comment, replyTo: replyTo?._id }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setComment('');
+      setReplyTo(null);
+      setReplyContent('');
       // Refresh discussions
       const res = await api.get(`/cases/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -55,6 +59,17 @@ export default function CaseDetail() {
       setError('Failed to add discussion');
     }
   };
+
+  function handleReply(comment: any) {
+    setReplyTo(comment);
+    setReplyContent('');
+  }
+
+  async function submitReply() {
+    if (!replyContent.trim()) return;
+    setComment(replyContent);
+    await handleDiscussion();
+  }
 
   const handlePin = async (commentId: string) => {
     try {
@@ -143,11 +158,9 @@ export default function CaseDetail() {
                         <Typography variant="caption" sx={{ ml: 1, color: '#90caf9' }}>
                           {c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                         </Typography>
-                        {isAuthor && (
-                          <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handlePin(c._id)}>
-                            <PushPinIcon sx={{ fontSize: 18, color: '#1976d2' }} />
-                          </IconButton>
-                        )}
+                        <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={e => { setAnchorEl(e.currentTarget); setSelectedComment({ comment: c, idx, pinned: true }); }}>
+                          <MoreVertIcon sx={{ fontSize: 18, color: isMe ? '#fff' : '#1976d2' }} />
+                        </IconButton>
                       </Box>
                     </Box>
                   </Box>
@@ -211,15 +224,38 @@ export default function CaseDetail() {
                         <Typography variant="caption" sx={{ ml: 1, color: '#90caf9' }}>
                           {c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                         </Typography>
-                        {isAuthor && (
-                          <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handlePin(c._id)}>
-                            <PushPinIcon sx={{ fontSize: 18, color: '#1976d2' }} />
-                          </IconButton>
-                        )}
-                        <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={e => { setAnchorEl(e.currentTarget); setSelectedComment(idx); }}>
+                        <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={e => { setAnchorEl(e.currentTarget); setSelectedComment({ comment: c, idx, pinned: false }); }}>
                           <MoreVertIcon sx={{ fontSize: 18, color: isMe ? '#fff' : '#1976d2' }} />
                         </IconButton>
                       </Box>
+                      {/* Show replies if any */}
+                      {c.replies && c.replies.length > 0 && (
+                        <Box sx={{ mt: 1, ml: 4, pl: 2, borderLeft: '2px solid #90caf9', bgcolor: '#f5fafd', borderRadius: 2 }}>
+                          {c.replies.map((r: any, ridx: number) => (
+                            <Box key={r._id || ridx} sx={{ mb: 1, display: 'flex', alignItems: 'flex-end' }}>
+                              <Box sx={{
+                                background: 'linear-gradient(135deg, #90caf9 60%, #e3f2fd 100%)',
+                                color: '#1976d2',
+                                width: 32,
+                                height: 32,
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 700,
+                                fontSize: 16,
+                                mr: 1.5,
+                              }}>{r.author?.firstName?.[0]?.toUpperCase() || 'U'}</Box>
+                              <Box sx={{ bgcolor: '#fff', color: '#222', borderRadius: 2, px: 2, py: 1, boxShadow: 1 }}>
+                                <Typography sx={{ fontSize: '1rem', fontWeight: 500 }}>{r.content}</Typography>
+                                <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.8rem', color: '#90caf9' }}>
+                                  {r.createdAt ? new Date(r.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
                     </Box>
                   </Box>
                 </motion.div>
@@ -227,33 +263,65 @@ export default function CaseDetail() {
             })}
           </Box>
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-            <MenuItem onClick={() => { setAnchorEl(null); }}>Reply</MenuItem>
+            <MenuItem onClick={() => { setAnchorEl(null); handleReply(selectedComment?.comment); }}>Reply</MenuItem>
+            {isAuthor && (
+              <MenuItem onClick={() => { setAnchorEl(null); handlePin(selectedComment?.comment._id); }}>Pin</MenuItem>
+            )}
             <MenuItem onClick={() => { setAnchorEl(null); }}>Report</MenuItem>
           </Menu>
+          {/* Reply input bar */}
+          {replyTo && (
+            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', bgcolor: '#e3f2fd', borderRadius: 3, boxShadow: 1, px: 2, py: 1 }}>
+              <TextField
+                placeholder={`Replying to ${replyTo.author?.firstName || 'user'}...`}
+                value={replyContent}
+                onChange={e => setReplyContent(e.target.value)}
+                variant="standard"
+                fullWidth
+                InputProps={{ disableUnderline: true, sx: { fontSize: 16 } }}
+                sx={{ mr: 2 }}
+                onKeyDown={e => { if (e.key === 'Enter') submitReply(); }}
+              />
+              <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ borderRadius: '50%', minWidth: 44, minHeight: 44, boxShadow: 2, fontSize: 18 }}
+                  onClick={submitReply}
+                  disabled={!replyContent.trim()}
+                >
+                  &#9658;
+                </Button>
+              </motion.div>
+              <Button onClick={() => setReplyTo(null)} sx={{ ml: 2, color: '#1976d2', fontWeight: 700 }}>Cancel</Button>
+            </Box>
+          )}
           {/* Modern input bar */}
-          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', bgcolor: '#fff', borderRadius: 3, boxShadow: 1, px: 2, py: 1 }}>
-            <TextField
-              placeholder="Type your discussion..."
-              value={comment}
-              onChange={e => setComment(e.target.value)}
-              variant="standard"
-              fullWidth
-              InputProps={{ disableUnderline: true, sx: { fontSize: 16 } }}
-              sx={{ mr: 2 }}
-              onKeyDown={e => { if (e.key === 'Enter') handleDiscussion(); }}
-            />
-            <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ borderRadius: '50%', minWidth: 44, minHeight: 44, boxShadow: 2, fontSize: 18 }}
-                onClick={handleDiscussion}
-                disabled={!comment.trim()}
-              >
-                &#9658;
-              </Button>
-            </motion.div>
-          </Box>
+          {!replyTo && (
+            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', bgcolor: '#fff', borderRadius: 3, boxShadow: 1, px: 2, py: 1 }}>
+              <TextField
+                placeholder="Type your discussion..."
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                variant="standard"
+                fullWidth
+                InputProps={{ disableUnderline: true, sx: { fontSize: 16 } }}
+                sx={{ mr: 2 }}
+                onKeyDown={e => { if (e.key === 'Enter') handleDiscussion(); }}
+              />
+              <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ borderRadius: '50%', minWidth: 44, minHeight: 44, boxShadow: 2, fontSize: 18 }}
+                  onClick={handleDiscussion}
+                  disabled={!comment.trim()}
+                >
+                  &#9658;
+                </Button>
+              </motion.div>
+            </Box>
+          )}
         </Box>
       </Box>
     </Container>
