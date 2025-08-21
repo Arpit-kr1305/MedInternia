@@ -1,7 +1,31 @@
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, Typography, Button, Box, Avatar, Stack } from "@mui/material";
 import Link from "next/link";
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 
 export default function CaseCard({ caseData, onOpenDiscussion, onReadMore, isExpanded }: { caseData: any, onOpenDiscussion?: (caseId: string) => void, onReadMore?: () => void, isExpanded?: boolean }) {
+  const [starred, setStarred] = useState(false);
+  const [showPinned, setShowPinned] = useState(false);
+
+  useEffect(() => {
+    setStarred(!!caseData.isStarred);
+  }, [caseData]);
+
+  const handleStarClick = () => {
+    setStarred(prev => !prev);
+    if (!starred && window && window.localStorage) {
+      const starredCases = JSON.parse(localStorage.getItem('starredCases') || '[]');
+      localStorage.setItem('starredCases', JSON.stringify([...starredCases, caseData._id]));
+    } else if (starred && window && window.localStorage) {
+      const starredCases = JSON.parse(localStorage.getItem('starredCases') || '[]');
+      localStorage.setItem('starredCases', JSON.stringify(starredCases.filter((id: string) => id !== caseData._id)));
+    }
+  };
+
+  // Pin icon click handler
+  const handlePinIconClick = () => {
+    setShowPinned(prev => !prev);
+  };
   // Status accent color and icon
   const statusMap = {
     Open: { color: "#1976d2", icon: "🔵" },
@@ -48,32 +72,82 @@ export default function CaseCard({ caseData, onOpenDiscussion, onReadMore, isExp
       </Stack>
 
       {/* Title and status */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
-        <Typography fontSize={28} sx={{ color: accent.color }}>
-          {accent.icon}
-        </Typography>
-        <Typography
-          variant="h5"
-          fontWeight={800}
-          color="#1565c0"
-          sx={{ flex: 1, letterSpacing: 0.5 }}
-        >
-          {caseData?.title || "Untitled Case"}
-        </Typography>
-        <Box
-          sx={{
-            px: 2,
-            py: 0.7,
-            borderRadius: 2,
-            background: accent.color,
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 14,
-            boxShadow: "0 1px 4px #2193b022",
-            letterSpacing: 1,
-          }}
-        >
-          {status}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1, justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography fontSize={28} sx={{ color: accent.color }}>
+            {accent.icon}
+          </Typography>
+          <Typography
+            variant="h5"
+            fontWeight={800}
+            color="#1565c0"
+            sx={{ flex: 1, letterSpacing: 0.5 }}
+          >
+            {caseData?.title || "Untitled Case"}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              px: 2,
+              py: 0.7,
+              borderRadius: 2,
+              background: accent.color,
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              boxShadow: "0 1px 4px #2193b022",
+              letterSpacing: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            {status}
+            {/* Clickable star icon, no number */}
+            <span
+              style={{
+                cursor: 'pointer',
+                marginLeft: 12,
+                display: 'flex',
+                alignItems: 'center',
+                transition: 'transform 0.18s',
+                transform: starred ? 'scale(1.15)' : 'scale(1)',
+                boxShadow: starred ? '0 2px 12px #ffd70088' : 'none',
+              }}
+              onClick={handleStarClick}
+              title={starred ? 'Unstar' : 'Star'}
+            >
+              <StarBorderIcon
+                sx={{
+                  fontSize: 42,
+                  color: starred ? '#FFD700' : '#bdbdbd',
+                  filter: starred ? 'drop-shadow(0 2px 8px #ffd70088)' : 'none',
+                  transition: 'color 0.2s',
+                  stroke: starred ? '#e3b900' : '#bdbdbd',
+                  strokeWidth: starred ? 2 : 1,
+                }}
+              />
+            </span>
+            {/* Pin icon to toggle pinned discussions */}
+            <span
+              style={{
+                cursor: 'pointer',
+                marginLeft: 12,
+                display: 'flex',
+                alignItems: 'center',
+                transition: 'transform 0.18s',
+                transform: showPinned ? 'rotate(-20deg) scale(1.15)' : 'scale(1)',
+                boxShadow: showPinned ? '0 2px 12px #1976d288' : 'none',
+              }}
+              onClick={handlePinIconClick}
+              title={showPinned ? 'Hide pinned discussions' : 'Show pinned discussions'}
+            >
+              <span style={{ fontSize: 36, color: showPinned ? '#1976d2' : '#bdbdbd', transition: 'color 0.2s' }}>
+                📌
+              </span>
+            </span>
+          </Box>
         </Box>
       </Box>
 
@@ -145,6 +219,32 @@ export default function CaseCard({ caseData, onOpenDiscussion, onReadMore, isExp
         >
           Discussions
         </Button>
+      </Box>
+
+      {/* Pinned discussions section, smooth transition */}
+      <Box sx={{
+        maxHeight: showPinned ? 400 : 0,
+        opacity: showPinned ? 1 : 0,
+        overflow: 'hidden',
+        transition: 'max-height 0.5s cubic-bezier(.4,0,.2,1), opacity 0.4s',
+        mt: 2,
+        mb: showPinned ? 2 : 0,
+        bgcolor: '#f5fafd',
+        borderRadius: 3,
+        boxShadow: showPinned ? '0 2px 12px #1976d222' : 'none',
+        p: showPinned ? 2 : 0,
+      }}>
+        {showPinned && (
+          <Typography fontWeight={700} fontSize={18} color="#1976d2" sx={{ mb: 1 }}>
+            Pinned Discussions
+          </Typography>
+        )}
+        {/* You can render pinned discussions here, e.g. from props or context */}
+        {showPinned && (
+          <Typography color="#888" fontSize={15}>
+            (Pinned discussions will appear here)
+          </Typography>
+        )}
       </Box>
 
       <style jsx global>{`

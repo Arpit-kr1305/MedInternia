@@ -41,7 +41,7 @@ export default function Login() {
         position: 'relative',
         overflow: 'hidden',
       }}>
-        <Box sx={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, bgcolor: '#e0eafc', borderRadius: '50%', opacity: 0.5, zIndex: 0 }} />
+  {/* Removed decorative circle at top right */}
         <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 900, color: '#1565c0', letterSpacing: 1, zIndex: 1, position: 'relative' }}>Login</Typography>
         {error && <Alert severity="error" sx={{ zIndex: 1, position: 'relative' }}>{error}</Alert>}
         <form onSubmit={handleSubmit} style={{ zIndex: 1, position: 'relative' }}>
@@ -93,7 +93,26 @@ export default function Login() {
         <Box textAlign="center" sx={{ zIndex: 1, position: 'relative' }}>
           <Typography variant="body2" sx={{ mb: 1 }}>Don't have an account?</Typography>
           <Link href="/auth/register" passHref>
-            <Button variant="outlined" color="primary" fullWidth sx={{ borderRadius: 3, fontWeight: 700 }}>Register</Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              fullWidth
+              sx={{
+                borderRadius: 3,
+                fontWeight: 700,
+                boxShadow: 'none',
+                border: 'none',
+                '&:hover': {
+                  boxShadow: 'none',
+                  textDecoration: 'none',
+                  border: 'none',
+                  background: '#e3f2fd',
+                  color: '#1565c0',
+                },
+              }}
+            >
+              Register
+            </Button>
           </Link>
         </Box>
       </Paper>

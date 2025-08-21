@@ -149,88 +149,6 @@ export default function CaseDiscussion({ id: propId, modalMode, hideDescription 
           <Typography variant="h4" gutterBottom>{caseData.title}</Typography>
           <Typography variant="body1">{caseData.description}</Typography>
         </>}
-        <Box sx={{ mt: 3, bgcolor: '#e3f2fd', borderRadius: 4, p: 2, boxShadow: 2, pt: 6 }}>
-          <Typography variant="h6" sx={{ mb: 2, color: '#1976d2', fontWeight: 700 }}>Pinned Discussions</Typography>
-          <Box sx={{ maxHeight: 200, overflowY: 'auto', px: 1, mb: 2 }}>
-            {pinned.length === 0 && (
-              <Typography variant="body2" sx={{ color: '#888', textAlign: 'center', py: 2 }}>
-                No pinned discussions yet.
-              </Typography>
-            )}
-            {pinned.map((c, idx) => {
-              const isMe = c.author?.id === userId;
-              const authorName = c.author?.firstName || 'Unknown';
-              const initial = authorName[0]?.toUpperCase() || 'U';
-              return (
-                <motion.div
-                  key={c._id || idx}
-                  initial={{ opacity: 0, x: isMe ? 50 : -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  whileHover={{ scale: 1.03 }}
-                >
-                  <Box sx={{
-                    display: 'flex',
-                    flexDirection: isMe ? 'row-reverse' : 'row',
-                    alignItems: 'flex-end',
-                    mb: 2,
-                  }}>
-                    <Box sx={{
-                      background: isMe ? 'linear-gradient(135deg, #1976d2 60%, #64b5f6 100%)' : 'linear-gradient(135deg, #90caf9 60%, #e3f2fd 100%)',
-                      color: '#fff',
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      fontSize: 20,
-                      boxShadow: 1,
-                      mr: isMe ? 0 : 2,
-                      ml: isMe ? 2 : 0,
-                    }}>{initial}</Box>
-                    <Box sx={{
-                      bgcolor: isMe ? '#1976d2' : '#fff',
-                      color: isMe ? '#fff' : '#222',
-                      borderRadius: 3,
-                      px: 2.5,
-                      py: 2,
-                      minWidth: 180,
-                      maxWidth: 420,
-                      boxShadow: '0 2px 12px #1976d222',
-                      position: 'relative',
-                    }}>
-                      {/* WhatsApp-style reply preview for top-level comments */}
-                      {c.replyTo && c.replyTo.content && (
-                        <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, px: 2, py: 1, mb: 1, borderLeft: '3px solid #90caf9' }}>
-                          <Typography sx={{ fontSize: '0.95rem', color: '#1976d2', fontWeight: 500 }}>
-                            Replying to: {c.replyTo.content}
-                          </Typography>
-                        </Box>
-                      )}
-                      <Typography sx={{ wordBreak: 'break-word', fontSize: '1.15rem', fontWeight: 500 }}>{c.content}</Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.85rem' }}>{authorName}</Typography>
-                        <Typography variant="caption" sx={{ ml: 1, color: '#90caf9' }}>
-                          {c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                        </Typography>
-                        {/* Reply icon (lucide, always visible) */}
-                        <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#1976d2', '&:hover': { bgcolor: '#e3f2fd' }, borderRadius: 2 }} onClick={() => handleReply(c)}>
-                          <MessageCircleReply size={20} strokeWidth={2.2} />
-                        </IconButton>
-                        {/* Pin icon for owner, visible */}
-                        {isAuthor && !c.pinned && (
-                          <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#1976d2', '&:hover': { bgcolor: '#e3f2fd' } }} onClick={() => handlePin(c._id)}>
-                            <Pin size={20} strokeWidth={2.2} />
-                          </IconButton>
-                        )}
-                      </Box>
-                    </Box>
-                  </Box>
-                </motion.div>
-              );
-            })}
-          </Box>
           <Typography variant="h6" sx={{ mb: 2, color: '#1976d2', fontWeight: 700 }}>Discussions</Typography>
           <Box sx={{ maxHeight: 400, overflowY: 'auto', px: 1 }}>
             {discussions.length === 0 && (
@@ -293,21 +211,21 @@ export default function CaseDiscussion({ id: propId, modalMode, hideDescription 
                           <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#1976d2', '&:hover': { bgcolor: '#e3f2fd' }, borderRadius: 2 }} onClick={() => handleReply(c)}>
                             <MessageCircleReply size={20} strokeWidth={2.2} />
                           </IconButton>
-                          {/* Pin icon for owner, visible */}
-                          {isAuthor && !c.pinned && (
-                            <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#1976d2', '&:hover': { bgcolor: '#e3f2fd' }, borderRadius: 2 }} onClick={() => handlePin(c._id)}>
-                              <Pin size={20} strokeWidth={2.2} />
+                          {/* Three dots menu for pin/unpin */}
+                          {isAuthor && (
+                            <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={e => { setAnchorEl(e.currentTarget); setSelectedComment(c); }}>
+                              <MoreVertIcon sx={{ fontSize: 22, color: '#888', transition: 'color 0.2s', '&:hover': { color: '#1976d2' } }} />
                             </IconButton>
                           )}
-                          {/* Remove MoreVert menu for main actions */}
-                          {/* Like and rate buttons */}
+                          {/* Pin/unpin option in menu */}
+                          {anchorEl && selectedComment?._id === c._id && (
+                            <Box sx={{ position: 'absolute', top: 32, right: 8, zIndex: 10, bgcolor: '#fff', borderRadius: 2, boxShadow: 2, minWidth: 120, p: 1 }}>
+                              <Button size="small" sx={{ color: '#1976d2', textTransform: 'none', fontWeight: 700 }} onClick={() => { handlePin(c._id); setAnchorEl(null); setSelectedComment(null); }}>{c.pinned ? 'Unpin' : 'Pin'}</Button>
+                            </Box>
+                          )}
                           {/* Like button with active state */}
                           <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleLike(c._id)}>
                             <ThumbUpAltOutlinedIcon sx={{ fontSize: 18, color: c.likedBy?.includes(userId) ? '#1976d2' : '#2193b0' }} />
-                          </IconButton>
-                          {/* Star (favorite) button with active state */}
-                          <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleRate(c._id, 5)}>
-                            <StarBorderIcon sx={{ fontSize: 18, color: c.ratedBy?.includes(userId) ? '#ffd700' : '#bdbdbd' }} />
                           </IconButton>
                           {/* Dropdown for replies */}
                           {c.replies && c.replies.length > 0 && (
@@ -430,7 +348,6 @@ export default function CaseDiscussion({ id: propId, modalMode, hideDescription 
             </Box>
           )}
         </Box>
-      </Box>
     </Container>
   );
 }

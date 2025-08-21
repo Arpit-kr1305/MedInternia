@@ -102,11 +102,6 @@ export default function WebinarsPage() {
                   primary={<Typography fontWeight={700} fontSize={18}>{w.title}</Typography>}
                   secondary={<Typography color="text.secondary">{new Date(w.scheduledAt).toLocaleString()}</Typography>}
                 />
-                <Chip
-                  label={w.status === 'scheduled' ? 'Upcoming' : w.status.charAt(0).toUpperCase() + w.status.slice(1)}
-                  color={w.status === 'scheduled' ? 'info' : 'default'}
-                  sx={{ ml: 2, fontWeight: 700 }}
-                />
               </ListItem>
             ))
           )}

@@ -12,6 +12,7 @@ import {
   Mail,
   Paperclip,
 } from "lucide-react";
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 
 const VisibilityToggle = () => {
   const [isPublic, setIsPublic] = useState(true);
@@ -661,98 +662,85 @@ const RecentCaseStudies = ({ studies }: { studies: any[] }) => {
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {studies.map((study, idx) => (
-          <div
-            key={study._id || idx}
-            style={{
-              padding: 16,
-              border: "1px solid #f1f5f9",
-              borderRadius: 12,
-              backgroundColor: "#fafbfc",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  backgroundColor: "#e0f2fe",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 16,
-                  fontWeight: "bold",
-                  color: "#0284c7",
-                  flexShrink: 0,
-                }}
-              >
-                {study.authorInitials ||
-                  (study.doctor?.firstName && study.doctor?.lastName
-                    ? `${study.doctor.firstName[0]}${study.doctor.lastName[0]}`
-                    : "DR")}
-              </div>
-              <div style={{ flex: 1 }}>
+        {studies.filter(study => study._id).map((study, idx) => {
+          return (
+            <div
+              key={study._id}
+              style={{
+                padding: 16,
+                border: "1px solid #f1f5f9",
+                borderRadius: 12,
+                backgroundColor: "#fafbfc",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                 <div
                   style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    backgroundColor: "#e0f2fe",
                     display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: 8,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 16,
+                    fontWeight: "bold",
+                    color: "#0284c7",
+                    flexShrink: 0,
                   }}
                 >
-                  <div>
-                    <h3
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 600,
-                        color: "#1e293b",
-                        margin: "0 0 4px 0",
-                      }}
-                    >
-                      {study.title}
-                    </h3>
-                    <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
-                      {study.date ||
-                        study.createdAt?.slice(0, 10) ||
-                        study.createdAt}
-                    </p>
-                  </div>
-                  <button
+                  {study.authorInitials ||
+                    (study.doctor?.firstName && study.doctor?.lastName
+                      ? `${study.doctor.firstName[0]}${study.doctor.lastName[0]}`
+                      : "DR")}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div
                     style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 4,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: 8,
                     }}
                   >
-                    •••
-                  </button>
-                </div>
-                <p
-                  style={{
-                    fontSize: 14,
-                    color: "#374151",
-                    margin: "0 0 12px 0",
-                  }}
-                >
-                  {study.description || study.content}
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div style={{ display: "flex", gap: 16 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                      }}
-                    >
+                    <div>
+                      <h3
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: "#1e293b",
+                          margin: "0 0 4px 0",
+                        }}
+                      >
+                        {study.title}
+                      </h3>
+                      <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+                        {study.date ||
+                          study.createdAt?.slice(0, 10) ||
+                          study.createdAt}
+                      </p>
+                    </div>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      color: "#374151",
+                      margin: "0 0 12px 0",
+                    }}
+                  >
+                    {study.description || study.content}
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 16,
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                       <Heart size={16} color="#64748b" />
                       <span style={{ fontSize: 14, color: "#64748b" }}>
                         {Array.isArray(study.likes) ? study.likes.length : (typeof study.likes === 'number' ? study.likes : 0)}
@@ -776,36 +764,23 @@ const RecentCaseStudies = ({ studies }: { studies: any[] }) => {
                         {Array.isArray(study.comments) ? study.comments.length : (typeof study.comments === 'number' ? study.comments : 0)}
                       </span>
                     </button>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                      }}
-                    >
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                       <Share2 size={16} color="#64748b" />
                       <span style={{ fontSize: 14, color: "#64748b" }}>
                         {typeof study.shares === 'number' ? study.shares : (typeof study.shareCount === 'number' ? study.shareCount : 0)}
                       </span>
                     </div>
                   </div>
-                  <span
-                    style={{
-                      padding: "4px 8px",
-                      borderRadius: 12,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      backgroundColor: study.isPublic ? "#dbeafe" : "#dcfce7",
-                      color: study.isPublic ? "#1e40af" : "#166534",
-                    }}
-                  >
-                    {study.isPublic ? "Public" : "Private"}
-                  </span>
                 </div>
               </div>
+              {/* Star rating for the case (right side) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <StarBorderIcon sx={{ fontSize: 22, color: study.ratedBy?.length > 0 ? '#ffd700' : '#bdbdbd' }} />
+                <span style={{ fontSize: 15, color: '#64748b', fontWeight: 600 }}>{study.rating || 0}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       {modalOpen && (
         <div
