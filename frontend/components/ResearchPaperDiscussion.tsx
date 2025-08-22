@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, IconButton, TextField, Button, Stack, Tooltip, Collapse } from '@mui/material';
+import { Box, Typography, IconButton, TextField, Button, Stack, Tooltip, Collapse, Alert, CircularProgress } from '@mui/material';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import { MessageCircleReply } from 'lucide-react';
-// Update the import path below if your api utility is located elsewhere, e.g. '../utils/api' or './api'
 import api from '../utils/api';
 
 export default function ResearchPaperDiscussion({ id, modalMode }: { id: string, modalMode?: boolean }) {
@@ -68,14 +67,16 @@ export default function ResearchPaperDiscussion({ id, modalMode }: { id: string,
     setReplyContent('');
   }
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress color="primary" /></Box>;
+  // Show error as alert
+  const errorAlert = error ? <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert> : null;
 
   const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
 
   return (
     <Box sx={{ my: 2 }}>
       <Typography variant="h6" sx={{ mb: 2, color: '#1976d2', fontWeight: 700 }}>Discussions</Typography>
+      {errorAlert}
       <Box sx={{ maxHeight: 400, overflowY: 'auto', px: 1 }}>
         {discussions.length === 0 && (
           <Typography variant="body2" sx={{ color: '#888', textAlign: 'center', py: 4 }}>
@@ -94,12 +95,16 @@ export default function ResearchPaperDiscussion({ id, modalMode }: { id: string,
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.85rem' }}>{authorName}</Typography>
                   <Typography variant="caption" sx={{ ml: 1, color: '#90caf9' }}>{c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</Typography>
-                  <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#1976d2', '&:hover': { bgcolor: '#e3f2fd' }, borderRadius: 2 }} onClick={() => handleReply(c)}>
-                    <MessageCircleReply size={20} strokeWidth={2.2} />
-                  </IconButton>
-                  <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleLike(c._id)}>
-                    <ThumbUpAltOutlinedIcon sx={{ fontSize: 18, color: c.likedBy?.includes(userId) ? '#1976d2' : '#2193b0' }} />
-                  </IconButton>
+                  <Tooltip title="Reply">
+                    <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#1976d2', '&:hover': { bgcolor: '#e3f2fd' }, borderRadius: 2 }} onClick={() => handleReply(c)}>
+                      <MessageCircleReply size={20} strokeWidth={2.2} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Like">
+                    <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleLike(c._id)}>
+                      <ThumbUpAltOutlinedIcon sx={{ fontSize: 18, color: c.likedBy?.includes(userId) ? '#1976d2' : '#2193b0' }} />
+                    </IconButton>
+                  </Tooltip>
                   {c.replies && c.replies.length > 0 && (
                     <Button size="small" sx={{ ml: 1, fontSize: 12, color: '#1976d2', textTransform: 'none' }} onClick={() => setOpenReplies(prev => ({ ...prev, [c._id]: !prev[c._id] }))}>
                       {openReplies[c._id] ? 'Hide Replies' : `Show Replies (${c.replies.length})`}

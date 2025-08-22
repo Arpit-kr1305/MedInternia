@@ -1,12 +1,14 @@
 import express from 'express';
-import { createResearchPaper, getAllResearchPapers } from '../controllers/researchPaperController';
+import { createResearchPaper, getAllResearchPapers, getResearchPaperById } from '../controllers/researchPaperController';
 import path from 'path';
 import fs from 'fs';
 
 const router = express.Router();
 
+
 router.post('/', createResearchPaper);
 router.get('/', getAllResearchPapers);
+router.get('/:id', getResearchPaperById);
 
 // Download endpoint for research paper PDFs (assumes files are stored in backend/uploads)
 router.get('/download/:filename', (req, res) => {

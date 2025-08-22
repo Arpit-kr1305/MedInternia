@@ -9,6 +9,7 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 export default function ResearchPaperCard({ paper, onReadMore, onOpenDiscussion }: { paper: any, onReadMore?: () => void, onOpenDiscussion?: (id: string) => void }) {
   const [starred, setStarred] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     // Load starred/pinned state from localStorage
@@ -115,10 +116,25 @@ export default function ResearchPaperCard({ paper, onReadMore, onOpenDiscussion 
             </Tooltip>
           </Box>
         </Box>
-        {/* Description preview */}
-        <Typography color="#444" fontSize={16} sx={{ mb: 2, mt: 0.5, fontWeight: 400 }}>
-          {paper?.description?.length > 180 ? paper.description.slice(0, 180) + "..." : paper.description}
-        </Typography>
+        {/* Description preview with LinkedIn-style Read More */}
+        {(() => {
+          const desc = paper?.description || "No description.";
+          const shortDesc = desc.length > 180 ? desc.slice(0, 180) + "..." : desc;
+          return (
+            <Typography color="#444" fontSize={16} sx={{ mb: 2, mt: 0.5, fontWeight: 400 }}>
+              {expanded ? desc : shortDesc}
+              {desc.length > 180 && (
+                <Button
+                  variant="text"
+                  sx={{ ml: 1, fontWeight: 700, color: '#1976d2', textTransform: 'none', fontSize: 15, p: 0, minWidth: 0 }}
+                  onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
+                >
+                  {expanded ? 'Show Less' : 'Read More'}
+                </Button>
+              )}
+            </Typography>
+          );
+        })()}
         {/* Field, Difficulty, PDF */}
         <Typography fontSize={15} color="#1976d2" mt={1}>
           Field: {paper.field} | Difficulty: {paper.difficulty}
@@ -130,31 +146,6 @@ export default function ResearchPaperCard({ paper, onReadMore, onOpenDiscussion 
         )}
         {/* View Details & Discussions */}
         <Box sx={{ display: 'flex', gap: 2, mt: 1, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            sx={{
-              borderRadius: 3,
-              px: 4,
-              py: 1.1,
-              fontWeight: 700,
-              fontSize: "1.05rem",
-              background: "linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%)",
-              color: "#fff",
-              boxShadow: "0 2px 8px #2193b044",
-              letterSpacing: 1,
-              transition: "all 0.2s",
-              "&:hover": {
-                background: "linear-gradient(90deg, #1565c0 0%, #2193b0 100%)",
-                color: "#fff",
-                boxShadow: "0 4px 16px #2193b066",
-                filter: "brightness(1.08)",
-                transform: "scale(1.03)",
-              },
-            }}
-            onClick={onReadMore}
-          >
-            Read More
-          </Button>
           <Button
             variant="outlined"
             sx={{
@@ -168,7 +159,7 @@ export default function ResearchPaperCard({ paper, onReadMore, onOpenDiscussion 
               letterSpacing: 1,
               boxShadow: "0 2px 8px #2193b022",
               transition: "all 0.2s",
-              ml: 1,
+              ml: 0,
               "&:hover": {
                 background: "#e3f2fd",
                 borderColor: "#1565c0",

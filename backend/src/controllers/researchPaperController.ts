@@ -1,3 +1,12 @@
+export const getResearchPaperById = async (req: Request, res: Response) => {
+  try {
+    const paper = await ResearchPaper.findById(req.params.id);
+    if (!paper) return res.status(404).json({ error: 'Research paper not found.' });
+    res.json({ data: { paper } });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch research paper.' });
+  }
+};
 import { Request, Response } from 'express';
 import ResearchPaper from '../models/ResearchPaper';
 
