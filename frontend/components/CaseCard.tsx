@@ -127,7 +127,7 @@ export default function CaseCard({ caseData, onOpenDiscussion, onReadMore, isExp
                 {starred ? <StarRoundedIcon fontSize="inherit" /> : <StarBorderRoundedIcon fontSize="inherit" />}
               </IconButton>
             </Tooltip>
-            <Tooltip title={showPinned ? 'Unpin' : 'Pin'}>
+            {/* <Tooltip title={showPinned ? 'Unpin' : 'Pin'}>
               <IconButton
                 onClick={handlePinIconClick}
                 sx={{
@@ -145,7 +145,7 @@ export default function CaseCard({ caseData, onOpenDiscussion, onReadMore, isExp
               >
                 {showPinned ? <PushPinIcon fontSize="inherit" /> : <PushPinOutlinedIcon fontSize="inherit" />}
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
           </Box>
         </Box>
 

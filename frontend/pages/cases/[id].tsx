@@ -29,9 +29,9 @@ export default function CaseDiscussion({ id: propId, modalMode, hideDescription 
       const res = await api.get(`/cases/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const all = res.data.data.case.comments || [];
-      setPinned(all.filter((c: any) => c.pinned));
-      setDiscussions(all.filter((c: any) => !c.pinned));
+  const all = res.data.data.case.comments || [];
+  setPinned(all.filter((c: any) => c.pinned));
+  setDiscussions(all); // Show all comments in discussions, including pinned
     } catch {
       setError('Failed to like discussion');
     }
@@ -135,6 +135,24 @@ export default function CaseDiscussion({ id: propId, modalMode, hideDescription 
     }
   };
 
+  const handleUnpin = async (commentId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.post(`/cases/${id}/comments/${commentId}/unpin`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Refresh discussions
+      const res = await api.get(`/cases/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const all = res.data.data.case.comments || [];
+      setPinned(all.filter((c: any) => c.pinned));
+      setDiscussions(all.filter((c: any) => !c.pinned));
+    } catch {
+      setError('Failed to unpin discussion');
+    }
+  };
+
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!caseData) return null;
@@ -149,7 +167,55 @@ export default function CaseDiscussion({ id: propId, modalMode, hideDescription 
           <Typography variant="h4" gutterBottom>{caseData.title}</Typography>
           <Typography variant="body1">{caseData.description}</Typography>
         </>}
-          <Typography variant="h6" sx={{ mb: 2, color: '#1976d2', fontWeight: 700 }}>Discussions</Typography>
+          {pinned.length > 0 && (
+            <Box sx={{ mb: 3, p: 2, bgcolor: '#fffbe6', borderRadius: 3, boxShadow: '0 2px 12px #ffd70022', border: '1.5px solid #ffe066' }}>
+              <Typography variant="h6" sx={{ mb: 2, color: '#FFD700', fontWeight: 700 }}>Pinned Comments</Typography>
+              {pinned
+                .filter((c) => !c.replyTo)
+                .map((c, idx) => {
+                  const isMe = c.author?.id === userId;
+                  const authorName = c.author?.firstName || 'Unknown';
+                  const initial = authorName[0]?.toUpperCase() || 'U';
+                  return (
+                    <motion.div
+                      key={c._id || idx}
+                      initial={{ opacity: 0, x: isMe ? 50 : -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      whileHover={{ scale: 1.03 }}
+                    >
+                      <Box sx={{ display: 'flex', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-end', mb: 2 }}>
+                        <Box sx={{ background: isMe ? 'linear-gradient(135deg, #FFD700 60%, #ffe066 100%)' : 'linear-gradient(135deg, #ffe066 60%, #fffbe6 100%)', color: '#fff', width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 20, boxShadow: 1, mr: isMe ? 0 : 2, ml: isMe ? 2 : 0 }}>{initial}</Box>
+                        <Box sx={{ bgcolor: '#fffbe6', color: '#222', borderRadius: 3, px: 2.5, py: 2, minWidth: 180, maxWidth: 420, boxShadow: '0 2px 12px #ffd70022', position: 'relative', border: '1.5px solid #ffe066' }}>
+                          <Typography sx={{ wordBreak: 'break-word', fontSize: '1.15rem', fontWeight: 500 }}>{c.content}</Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                            <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.85rem' }}>{authorName}</Typography>
+                            <Typography variant="caption" sx={{ ml: 1, color: '#FFD700' }}>{c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</Typography>
+                            {/* Reply icon (lucide, always visible) */}
+                            <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#FFD700', '&:hover': { bgcolor: '#ffe066' }, borderRadius: 2 }} onClick={() => handleReply(c)}>
+                              <MessageCircleReply size={20} strokeWidth={2.2} />
+                            </IconButton>
+                            {/* Unpin icon/button for pinned comments */}
+                            <Tooltip title="Unpin">
+                              <IconButton
+                                size="small"
+                                sx={{ ml: 1, p: 0.5, color: '#FFD700', borderRadius: 2, '&:hover': { bgcolor: '#ffe066', color: '#222' }, boxShadow: '0 2px 8px #ffd70088' }}
+                                onClick={() => handleUnpin(c._id)}
+                              >
+                                <PushPinIcon sx={{ fontSize: 22 }} />
+                              </IconButton>
+                            </Tooltip>
+                            {/* Like button with active state */}
+                            <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleLike(c._id)}>
+                              <ThumbUpAltOutlinedIcon sx={{ fontSize: 18, color: c.likedBy?.includes(userId) ? '#FFD700' : '#2193b0' }} />
+                            </IconButton>
+                          </Box> {/* end inner Box (actions) */}
+                        </Box>
+                      </Box> {/* end Box (content + avatar) */}
+                    </motion.div>
+                  );
+                })}
+            </Box>
+          )}
           <Box sx={{ maxHeight: 400, overflowY: 'auto', px: 1 }}>
             {discussions.length === 0 && (
               <Typography variant="body2" sx={{ color: '#888', textAlign: 'center', py: 4 }}>
@@ -211,35 +277,16 @@ export default function CaseDiscussion({ id: propId, modalMode, hideDescription 
                           <IconButton size="small" sx={{ ml: 1, p: 0.5, color: '#1976d2', '&:hover': { bgcolor: '#e3f2fd' }, borderRadius: 2 }} onClick={() => handleReply(c)}>
                             <MessageCircleReply size={20} strokeWidth={2.2} />
                           </IconButton>
-                          {/* Three dots menu for pin/unpin */}
-                          {isAuthor && (
-                            <Tooltip title="More options">
-                              <IconButton
-                                size="small"
-                                sx={{
-                                  ml: 1,
-                                  p: 0.5,
-                                  color: '#2193b0',
-                                  borderRadius: 2,
-                                  transition: 'background 0.2s, color 0.2s',
-                                  '&:hover': {
-                                    background: '#e3f2fd',
-                                    color: '#1976d2',
-                                  },
-                                  boxShadow: '0 2px 8px #2193b022',
-                                }}
-                                onClick={e => { setAnchorEl(e.currentTarget); setSelectedComment(c); }}
-                              >
-                                <MoreVertIcon sx={{ fontSize: 24 }} />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                          {/* Pin/unpin option in menu */}
-                          {anchorEl && selectedComment?._id === c._id && (
-                            <Box sx={{ position: 'absolute', top: 32, right: 8, zIndex: 10, bgcolor: '#fff', borderRadius: 2, boxShadow: 2, minWidth: 120, p: 1 }}>
-                              <Button size="small" sx={{ color: '#1976d2', textTransform: 'none', fontWeight: 700 }} onClick={() => { handlePin(c._id); setAnchorEl(null); setSelectedComment(null); }}>{c.pinned ? 'Unpin' : 'Pin'}</Button>
-                            </Box>
-                          )}
+                          {/* Pin button visible to all users */}
+                          <Tooltip title={c.pinned ? 'Unpin' : 'Pin'}>
+                            <IconButton
+                              size="small"
+                              sx={{ ml: 1, p: 0.5, color: c.pinned ? '#FFD700' : '#2193b0', borderRadius: 2, '&:hover': { bgcolor: '#e3f2fd', color: '#1976d2' }, boxShadow: c.pinned ? '0 2px 8px #ffd70088' : 'none' }}
+                              onClick={() => handlePin(c._id)}
+                            >
+                              <PushPinIcon sx={{ fontSize: 22 }} />
+                            </IconButton>
+                          </Tooltip>
                           {/* Like button with active state */}
                           <IconButton size="small" sx={{ ml: 1, p: 0.5 }} onClick={() => handleLike(c._id)}>
                             <ThumbUpAltOutlinedIcon sx={{ fontSize: 18, color: c.likedBy?.includes(userId) ? '#1976d2' : '#2193b0' }} />

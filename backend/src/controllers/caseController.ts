@@ -533,16 +533,21 @@ export const pinComment = async (req: AuthRequest, res: Response) => {
   try {
     const { caseId, commentId } = req.params;
     const user = req.user;
-    if (!user || user.userType !== 'doctor') {
-      return res.status(403).json({ success: false, message: 'Only doctors can pin comments' });
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'User not authenticated' });
     }
     const caseDoc = await Case.findById(caseId);
     if (!caseDoc) return res.status(404).json({ success: false, message: 'Case not found' });
     const comment = caseDoc.comments.find((c: any) => c._id?.toString() === commentId);
     if (!comment) return res.status(404).json({ success: false, message: 'Comment not found' });
-    comment.pinned = true;
-    await caseDoc.save();
-    res.json({ success: true, comment });
+    // Doctors can pin any comment, others can only pin their own
+    if (user.userType === 'doctor' || (comment.author?.toString() === user._id?.toString())) {
+      comment.pinned = true;
+      await caseDoc.save();
+      return res.json({ success: true, comment });
+    } else {
+      return res.status(403).json({ success: false, message: 'You can only pin your own comments.' });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
