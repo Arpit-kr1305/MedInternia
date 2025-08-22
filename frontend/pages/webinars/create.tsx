@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Box, Typography, Card, TextField, Button, Alert } from '@mui/material';
+import { Box, Typography, TextField, Button, Alert, Paper, Fade } from '@mui/material';
 import api from '../../utils/api';
 import { useRouter } from 'next/router';
 
@@ -46,104 +47,163 @@ export default function CreateWebinar() {
   };
 
   return (
-  <Box
-    maxWidth={700}
-    mx="auto"
-    my={4}
-    sx={{
-      minHeight: "80vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      mt: 10,
-      pb: "30px", // padding-bottom 30px
-      mb: "30px"  // margin-bottom 30px
-    }}
-  >
-      <Card sx={{ p: 4, borderRadius: 4, boxShadow: "0 2px 12px #2193b022", background: "linear-gradient(120deg, #f8f9fa 0%, #e0eafc 100%)", width: "100%" }}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h3" fontWeight={900} color="#1565c0" sx={{ letterSpacing: 1 }}>
-            Create Webinar
-          </Typography>
-        </Box>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
-        <form onSubmit={handleSubmit}>
-          <TextField label="Title" name="title" fullWidth margin="normal" value={form.title} onChange={handleChange} required 
-            sx={{ background: '#fff', borderRadius: 2 }}
-          />
-          <TextField label="Description" name="description" fullWidth margin="normal" value={form.description} onChange={handleChange} required multiline rows={4}
-            sx={{ background: '#fff', borderRadius: 2 }}
-          />
-          <TextField
-            select
-            label="Type"
-            name="type"
-            fullWidth
-            margin="normal"
-            value={form.type}
-            onChange={handleChange}
-            SelectProps={{ native: true }}
-            required
-            sx={{ background: '#fff', borderRadius: 2 }}
-          >
-            <option value="webinar">Webinar</option>
-            <option value="ama">AMA</option>
-            <option value="case-discussion">Case Discussion</option>
-            <option value="live-conference">Live Conference</option>
-          </TextField>
-          <TextField
-            select
-            label="Specialization"
-            name="specialization"
-            fullWidth
-            margin="normal"
-            value={form.specialization}
-            onChange={handleChange}
-            SelectProps={{ native: true }}
-            required
-            sx={{ background: '#fff', borderRadius: 2 }}
-          >
-            <option value="general">General</option>
-            <option value="cardiology">Cardiology</option>
-            <option value="neurology">Neurology</option>
-            <option value="oncology">Oncology</option>
-            <option value="pediatrics">Pediatrics</option>
-            <option value="surgery">Surgery</option>
-            <option value="psychiatry">Psychiatry</option>
-            <option value="radiology">Radiology</option>
-            <option value="emergency">Emergency</option>
-            <option value="internal-medicine">Internal Medicine</option>
-          </TextField>
-          <TextField
-            label="Scheduled At"
-            name="scheduledAt"
-            type="datetime-local"
-            fullWidth
-            margin="normal"
-            value={form.scheduledAt}
-            onChange={handleChange}
-            required
-            InputLabelProps={{ shrink: true }}
-            sx={{ background: '#fff', borderRadius: 2 }}
-          />
-          <TextField
-              label="Duration (minutes)"
-              name="duration"
-              type="number"
+    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+      {/* Floating 3D decorative element */}
+      <Box sx={{
+        position: 'absolute',
+        top: 40,
+        right: 60,
+        zIndex: 0,
+        width: 120,
+        height: 120,
+        filter: 'blur(0.5px)',
+        opacity: 0.18,
+        background: 'radial-gradient(circle at 40% 60%, #2193b0 0%, #6dd5ed 80%, transparent 100%)',
+        borderRadius: '50%',
+        boxShadow: '0 8px 32px 0 #2193b044',
+        animation: 'floatY 4s ease-in-out infinite alternate',
+      }} />
+      <Fade in timeout={700}>
+        <Paper elevation={16} sx={{
+          p: 4,
+          borderRadius: 5,
+          minWidth: 350,
+          maxWidth: 440,
+          width: '100%',
+          background: 'rgba(255,255,255,0.82)',
+          boxShadow: '0 12px 40px 0 rgba(33,147,176,0.18)',
+          position: 'relative',
+          overflow: 'hidden',
+          backdropFilter: 'blur(8px)',
+          border: '1.5px solid #e0eafc',
+        }}>
+          {/* MedInternia Logo */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <img src="/med-internia-logo.jpg" alt="MedInternia Logo" style={{ width: 64, height: 64, borderRadius: 16, boxShadow: '0 2px 12px #2193b044', background: '#e0eafc' }} />
+          </Box>
+          <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 900, color: '#1565c0', letterSpacing: 1, zIndex: 1, position: 'relative', textShadow: '0 2px 8px #2193b022' }}>Create Webinar</Typography>
+          {error && <Alert severity="error" sx={{ zIndex: 1, position: 'relative', mb: 1 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ zIndex: 1, position: 'relative', mb: 1 }}>{success}</Alert>}
+          <form onSubmit={handleSubmit} style={{ zIndex: 1, position: 'relative' }}>
+            <TextField
+              label="Title"
+              name="title"
               fullWidth
-              margin="dense"
-              value={form.duration}
+              margin="normal"
+              value={form.title}
               onChange={handleChange}
               required
-              inputProps={{ min: 15, max: 480 }}
-              sx={{ background: '#fff', borderRadius: 2, mt: 2, mb: 2 }}
-          />
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2, fontWeight: 700, borderRadius: 3 }}>
-            CREATE WEBINAR
-          </Button>
-        </form>
-      </Card>
+              sx={{ bgcolor: '#f8fafd', borderRadius: 2, boxShadow: '0 1px 6px #2193b022' }}
+            />
+            <TextField
+              label="Description"
+              name="description"
+              fullWidth
+              margin="normal"
+              value={form.description}
+              onChange={handleChange}
+              required
+              multiline
+              rows={4}
+              sx={{ bgcolor: '#f8fafd', borderRadius: 2, boxShadow: '0 1px 6px #2193b022' }}
+            />
+            <TextField
+              select
+              label="Type"
+              name="type"
+              fullWidth
+              margin="normal"
+              value={form.type}
+              onChange={handleChange}
+              SelectProps={{ native: true }}
+              required
+              sx={{ bgcolor: '#f8fafd', borderRadius: 2, boxShadow: '0 1px 6px #2193b022' }}
+            >
+              <option value="webinar">Webinar</option>
+              <option value="ama">AMA</option>
+              <option value="case-discussion">Case Discussion</option>
+              <option value="live-conference">Live Conference</option>
+            </TextField>
+            <TextField
+              select
+              label="Specialization"
+              name="specialization"
+              fullWidth
+              margin="normal"
+              value={form.specialization}
+              onChange={handleChange}
+              SelectProps={{ native: true }}
+              required
+              sx={{ bgcolor: '#f8fafd', borderRadius: 2, boxShadow: '0 1px 6px #2193b022' }}
+            >
+              <option value="general">General</option>
+              <option value="cardiology">Cardiology</option>
+              <option value="neurology">Neurology</option>
+              <option value="oncology">Oncology</option>
+              <option value="pediatrics">Pediatrics</option>
+              <option value="surgery">Surgery</option>
+              <option value="psychiatry">Psychiatry</option>
+              <option value="radiology">Radiology</option>
+              <option value="emergency">Emergency</option>
+              <option value="internal-medicine">Internal Medicine</option>
+            </TextField>
+            <TextField
+              label="Scheduled At"
+              name="scheduledAt"
+              type="datetime-local"
+              fullWidth
+              margin="normal"
+              value={form.scheduledAt}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ shrink: true }}
+              sx={{ bgcolor: '#f8fafd', borderRadius: 2, boxShadow: '0 1px 6px #2193b022' }}
+            />
+            <TextField
+                label="Duration (minutes)"
+                name="duration"
+                type="number"
+                fullWidth
+                margin="dense"
+                value={form.duration}
+                onChange={handleChange}
+                required
+                inputProps={{ min: 15, max: 480 }}
+                sx={{ bgcolor: '#f8fafd', borderRadius: 2, mt: 2, mb: 2, boxShadow: '0 1px 6px #2193b022' }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{
+                mt: 2,
+                py: 1.3,
+                fontWeight: 700,
+                fontSize: '1.1rem',
+                borderRadius: 3,
+                boxShadow: '0 4px 20px 0 rgba(31, 38, 135, 0.10)',
+                background: 'linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%)',
+                transition: 'all 0.2s',
+                '&:hover': {
+                  background: 'linear-gradient(90deg, #1565c0 0%, #2193b0 100%)',
+                  transform: 'scale(1.03)',
+                  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)'
+                }
+              }}
+            >
+              Create Webinar
+            </Button>
+          </form>
+          {/* 3D floating animation keyframes */}
+          <style jsx>{`
+            @keyframes floatY {
+              0% { transform: translateY(0); }
+              100% { transform: translateY(30px); }
+            }
+          `}</style>
+        </Paper>
+      </Fade>
     </Box>
   );
 }
