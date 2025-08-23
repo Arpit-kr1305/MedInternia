@@ -1396,15 +1396,19 @@ const RecommendedConnections = () => {
   const [following, setFollowing] = React.useState<string[]>([]);
   const [doctors, setDoctors] = React.useState<Doctor[]>([]);
   React.useEffect(() => {
-    
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    import('../../utils/api').then(apiModule => {
-      apiModule.default.get('/users/leaderboard?userType=doctor&limit=10')
-        .then(res => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    import("../../utils/api").then((apiModule) => {
+      apiModule.default
+        .get("/users/leaderboard?userType=doctor&limit=10")
+        .then((res) => {
           let leaderboard = res.data.data.leaderboard || [];
           leaderboard.sort((a: Doctor, b: Doctor) => {
             if (a.createdAt && b.createdAt) {
-              return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+              return (
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+              );
             }
             return 0;
           });
@@ -1489,7 +1493,14 @@ const RecommendedConnections = () => {
         {doctors.slice(0, 5).map((doctor, idx) => {
           const isFollowing = following.includes(doctor._id);
           return (
-            <div key={doctor._id} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div
+              key={doctor._id}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
               <div
                 style={{
                   minWidth: 180,
@@ -1504,7 +1515,12 @@ const RecommendedConnections = () => {
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 8,
+                  cursor: "pointer",
                 }}
+                onClick={() => {
+                  window.location.href = `/people?id=${doctor._id}`;
+                }}
+                title="View profile"
               >
                 <div
                   style={{
