@@ -70,13 +70,13 @@ export default function Register() {
     }
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const validatePhone = (value: string) => /^[6-9]\d{9}$/.test(value);
+  const validatePhone = (value: string) => /^\d{10}$/.test(value);
 
-  const handlePhoneChange = (e: any) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const digits = value.replace(/\D/g, '').slice(0, 10);
     setForm({ ...form, [name]: digits });
@@ -84,7 +84,7 @@ export default function Register() {
     const errorMessage = digits.length === 0
       ? ''
       : !validatePhone(digits)
-        ? (digits.length < 10 ? 'Enter a valid 10-digit mobile number.' : 'Invalid mobile number format.')
+        ? 'Enter a valid 10-digit mobile number.'
         : '';
 
     if (name === 'phone') {

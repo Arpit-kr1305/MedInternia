@@ -6,7 +6,9 @@ import {
   Paper,
   TextField,
   Typography,
+  InputAdornment,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 const mockData = ["Result 1", "Result 2", "Result 3"];
 
@@ -21,12 +23,18 @@ export default function SearchPage() {
     setQuery(trimmed);
     if (!trimmed) {
       setResults([]);
-      setSearched(true);
+      setSearched(false);
       return;
     }
     const found = mockData.filter((item) => item.toLowerCase().includes(trimmed.toLowerCase()));
     setResults(found);
     setSearched(true);
+    // Sync search query to URL for bookmarking and refresh consistency
+    router.replace({ pathname: '/search', query: { q: trimmed } }, undefined, { shallow: true });
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
   };
 
   // Enter key handler on the text field
@@ -39,22 +47,39 @@ export default function SearchPage() {
 
   // If query provided via URL (?q=...), perform search on mount/update
   useEffect(() => {
-    const q = typeof router.query.q === "string" ? router.query.q : router.query.q?.[0] || "";
+    const q = Array.isArray(router.query.q) ? router.query.q[0] : router.query.q || "";
     if (q) {
       performSearch(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query.q]);
 
+  const displayQuery = query.length > 50 ? `${query.substring(0, 47)}...` : query;
+
   return (
     <Container maxWidth="md" sx={{ mt: 5 }}>
-      {/* Search placeholder — use the header search to perform queries */}
-      <Box sx={{ mb: 4 }} />
+      {/* Search input field */}
+      <Box sx={{ mb: 4 }}>
+        <TextField
+          fullWidth
+          placeholder="Search..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={onKeyDown}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
 
       {/* Search Results */}
       {!searched ? (
         <Typography variant="body1" align="center" color="text.secondary">
-          Type a term above and press Enter to search.
+          Enter a search term above and press Enter to find results.
         </Typography>
       ) : results.length > 0 ? (
         <Box display="flex" flexWrap="wrap" gap={2}>
@@ -69,7 +94,7 @@ export default function SearchPage() {
         </Box>
       ) : (
         <Typography variant="body1" align="center" color="text.secondary">
-          No results found for "{query}".
+          No results found for &quot;<Box component="span" sx={{ fontWeight: 600 }}>{displayQuery}</Box>&quot;.
         </Typography>
       )}
     </Container>
