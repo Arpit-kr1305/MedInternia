@@ -8,13 +8,13 @@ import {
   Typography,
 } from "@mui/material";
 
+const mockData = ["Result 1", "Result 2", "Result 3"];
+
 export default function SearchPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<string[]>([]);
   const [searched, setSearched] = useState(false);
-
-  const mockData = ["Result 1", "Result 2", "Result 3"];
 
   const performSearch = (q: string) => {
     const trimmed = (q || "").trim();
