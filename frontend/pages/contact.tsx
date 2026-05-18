@@ -35,11 +35,23 @@ export default function ContactPage() {
                 mt={3}
                 >
                 <EmailIcon color="primary" />
-                <Typography>medinternia@gmail.com</Typography>
+                <Typography
+                  component="a"
+                  href="mailto:medinternia@gmail.com"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  medinternia@gmail.com
+                </Typography>
                 </Box>
             <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
                 <PhoneIcon color="primary" />
-                <Typography>8585858585</Typography>
+                <Typography
+                  component="a"
+                  href="tel:8585858585"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  8585858585
+                </Typography>
             </Box>
 
             <Box mt={4}>
