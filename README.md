@@ -13,13 +13,11 @@ MedInternia is a comprehensive medical education and collaboration platform desi
 <img src="https://img.shields.io/github/stars/AnirudhPhophalia/MedInternia?style=for-the-badge" />
 <img src="https://img.shields.io/github/forks/AnirudhPhophalia/MedInternia?style=for-the-badge" />
 <img src="https://img.shields.io/github/issues/AnirudhPhophalia/MedInternia?style=for-the-badge" />
-<img src="https://img.shields.io/github/license/AnirudhPhophalia/MedInternia?style=for-the-badge" />
 <img src="https://img.shields.io/badge/GSSoC-2026-orange?style=for-the-badge" />
 
 </p>
 
 </div>
----
 
 # 🚨 Problem Statement
 
