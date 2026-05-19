@@ -335,7 +335,9 @@ Thanks to all the amazing contributors who help improve MedInternia ❤️
 
 # 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
+
+For responsible vulnerability reporting, see [SECURITY.md](./SECURITY.md). For setup and usage help, see [SUPPORT.md](./SUPPORT.md).
 
 ---
 
