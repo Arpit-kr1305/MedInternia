@@ -163,7 +163,15 @@ export const validatePredictionInput = (body: unknown): PredictionInput => {
     throw new Error('Each symptom must be 80 characters or fewer');
   }
 
-  const age = typeof payload.age === 'number' ? payload.age : undefined;
+  let age: number | undefined;
+  if (payload.age !== undefined) {
+    if (typeof payload.age !== 'number' || !Number.isFinite(payload.age)) {
+      throw new Error('Age must be a finite number');
+    }
+
+    age = payload.age;
+  }
+
   if (age !== undefined && (age < 0 || age > 120)) {
     throw new Error('Age must be between 0 and 120');
   }
