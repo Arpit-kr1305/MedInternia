@@ -9,6 +9,12 @@ import { Search, PlayCircle, FolderOpen, Briefcase, Video, Award, ChevronRight, 
 
 export default function HomePage() {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    setIsLoggedIn(!!token);
+  }, []);
 
   const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 40 },
@@ -39,7 +45,7 @@ export default function HomePage() {
         </Box>
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4 }}>
-          {['Cases', 'Jobs', 'Webinars', 'Leaderboard', 'About'].map((item) => (
+          {(isLoggedIn ? ['Cases', 'Jobs', 'Webinars', 'Leaderboard', 'About'] : ['Jobs', 'Webinars', 'Leaderboard', 'About']).map((item) => (
             <Link key={item} href={`/${item.toLowerCase()}`} passHref legacyBehavior>
               <Typography component="a" fontWeight={600} color="#4a5568" sx={{ textDecoration: 'none', transition: 'all 0.2s', '&:hover': { color: '#0072ff', borderBottom: 'none !important', textDecoration: 'none' } }}>{item}</Typography>
             </Link>
@@ -138,12 +144,12 @@ export default function HomePage() {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}>
           <Grid container spacing={3}>
             {[
-              { title: 'Cases', desc: 'Explore and analyze real medical cases.', icon: <FolderOpen size={28} color="#0072ff" />, color: '#eff6ff', link: '/cases' },
+              { title: 'Cases', desc: 'Explore and analyze real medical cases.', icon: <FolderOpen size={28} color="#0072ff" />, color: '#eff6ff', link: '/cases', authRequired: true },
               { title: 'Jobs', desc: 'Find internships and career opportunities.', icon: <Briefcase size={28} color="#38a169" />, color: '#f0fdf4', link: '/jobs' },
               { title: 'Webinars', desc: 'Join live AMAs and sessions.', icon: <Video size={28} color="#8b5cf6" />, color: '#f5f3ff', link: '/webinars' },
               { title: 'Leaderboard', desc: 'Track contributors and ranks.', icon: <Award size={28} color="#d97706" />, color: '#fffbeb', link: '/leaderboard' },
-            ].map((item, i) => (
-              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
+            ].filter((item) => !item.authRequired || isLoggedIn).map((item, i) => (
+              <Grid size={{ xs: 12, sm: 6, md: isLoggedIn ? 3 : 4 }} key={i}>
                 <motion.div variants={fadeInUp} style={{ height: '100%' }}>
                   <Paper sx={{ p: 4, borderRadius: '24px', height: '100%', transition: 'all 0.3s ease-in-out', '&:hover': { transform: 'translateY(-6px)', boxShadow: '0 15px 35px rgba(0,0,0,0.06)', '& .explore-underline': { width: '100%' } }, display: 'flex', flexDirection: 'column', bgcolor: '#fff', border: '1px solid rgba(0,0,0,0.04)' }} elevation={0}>
                     <Box sx={{ bgcolor: item.color, width: 64, height: 64, borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>

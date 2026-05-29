@@ -155,11 +155,16 @@ export default function Navbar({ route }: { route?: string }) {
   const [firstName, setFirstName] = React.useState<string>("");
   const [lastName, setLastName] = React.useState<string>("");
   const [userType, setUserType] = React.useState<string>("");
+  const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
 
 React.useEffect(() => {
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
-  if (!token || !userId) return;
+  if (!token || !userId) {
+    setIsLoggedIn(false);
+    return;
+  }
+  setIsLoggedIn(true);
 
   import('../utils/api').then(apiModule => {
     apiModule.default.get(`/users/${userId}/profile`, {
@@ -404,7 +409,7 @@ React.useEffect(() => {
                         color: theme.palette.primary.main,
                       }}
                     >
-                      {["Cases", "Jobs", "Webinars"].map((item) => (
+                      {(isLoggedIn ? ["Cases", "Jobs", "Webinars"] : ["Jobs", "Webinars"]).map((item) => (
                         <Box
                           key={item}
                           sx={{
@@ -433,12 +438,14 @@ React.useEffect(() => {
             <Box
               sx={{ display: "flex", alignItems: "center", gap: 1 }}
             >
-              <NavButton
-                href="/cases"
-                icon={<FolderOpenIcon />}
-                label="Cases"
-                isActive={router.pathname === "/cases"}
-              />
+              {isLoggedIn && (
+                <NavButton
+                  href="/cases"
+                  icon={<FolderOpenIcon />}
+                  label="Cases"
+                  isActive={router.pathname === "/cases"}
+                />
+              )}
               <NavButton
                 href="/diaries"
                 icon={<BookIcon />}
@@ -527,12 +534,14 @@ React.useEffect(() => {
             </Typography>
           </Box>
           <List>
-            <NavButton
-              href="/cases"
-              icon={<FolderOpenIcon />}
-              label="Cases"
-              isActive={router.pathname === "/cases"}
-            />
+            {isLoggedIn && (
+              <NavButton
+                href="/cases"
+                icon={<FolderOpenIcon />}
+                label="Cases"
+                isActive={router.pathname === "/cases"}
+              />
+            )}
             <NavButton
               href="/jobs"
               icon={<WorkIcon />}
